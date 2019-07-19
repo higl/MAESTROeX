@@ -1030,11 +1030,11 @@ extern "C"
 #else
   void mkutrans_2d(
                     const int* lo, const int* hi,
-                    const int lev, const int* domlo, const int* domhi,
-                    const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int nc_ut, const int ng_ut,
-                    const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int nc_uf, int const ng_uf,
+                    const int lev, const int idir,
+                    const int* domlo, const int* domhi,
+                    const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int ng_ut,
+                    const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, int const ng_uf,
                     amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
-                    amrex::Real* vtrans, const int* uv_lo, const int* uv_hi,
                     amrex::Real* Ip, const int* ip_lo, const int* ip_hi,
                     amrex::Real* Im, const int* im_lo, const int* im_hi,
                     const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
@@ -1077,6 +1077,22 @@ extern "C"
 #endif
 #endif
 			const amrex::Real* rhocc, const int* r_lo, const int* r_hi);
+    //////////////////////
+
+    //////////////////////
+    // in ppm.F90
+#if (AMREX_SPACEDIM == 2)
+    void ppm_2d(const int* lo, const int* hi,
+                const int idir, const int comp, const int bccomp,
+                const amrex::Real* s, const int* s_lo, const int* s_hi, const int nc_s,
+                const amrex::Real* u, const int* u_lo, const int* u_hi, const int nc_u,
+                const amrex::Real* Ip, const int* ip_lo, const int* ip_hi,
+                const amrex::Real* Im, const int* im_lo, const int* im_hi,
+                const int* domlo, const int* domhi,
+                const int* adv_bc,
+                const amrex::Real* dx, const amrex::Real dt,
+                const int is_umac);
+#endif
     //////////////////////
 
     //////////////////////
@@ -1265,7 +1281,7 @@ extern "C"
 #elif (AMREX_SPACEDIM == 3)
     void velpred_3d(
 #endif
-                      const int* lev, const int* domlo, const int* domhi,
+                      const int lev, const int* domlo, const int* domhi,
                       const int* lo, const int* hi,
                       const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int* nc_ut, int ng_ut,
                       const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int* nc_uf, int ng_uf,
@@ -1287,7 +1303,7 @@ extern "C"
 #endif
 #endif
                       const amrex::Real* force, const int* f_lo, const int* f_hi, const int* nc_f, int ng_f,
-                      const amrex::Real* w0, const amrex::Real* dx, const amrex::Real* dt,
+                      const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
                       const int* adv_bc, const int* phys_bc);
 
     //////////////////////

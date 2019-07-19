@@ -184,7 +184,8 @@ contains
        force,   f_lo,  f_hi, nc_f, ng_f, &
        w0,dx,dt,adv_bc,phys_bc) bind(C,name="velpred_2d")
 
-    integer         , intent(in   ) :: lev, domlo(3), domhi(3), lo(3), hi(3)
+    integer, value, intent(in   ) :: lev
+    integer         , intent(in   ) :: domlo(3), domhi(3), lo(3), hi(3)
     integer         , intent(in   ) :: ut_lo(3), ut_hi(3), nc_ut
     integer, value,   intent(in   ) :: ng_ut
     integer         , intent(in   ) :: uf_lo(3), uf_hi(3), nc_uf
@@ -203,7 +204,8 @@ contains
     double precision, intent(inout) :: vmac  (mv_lo(1):mv_hi(1),mv_lo(2):mv_hi(2),mv_lo(3):mv_hi(3))
     double precision, intent(in   ) :: force ( f_lo(1): f_hi(1), f_lo(2): f_hi(2),f_lo(3): f_hi(3),nc_f)
     double precision, intent(in   ) :: w0(0:max_radial_level,0:nr_fine)
-    double precision, intent(in   ) :: dx(3), dt
+    double precision, intent(in   ) :: dx(3)
+    double precision, value, intent(in   ) :: dt
     integer         , intent(in   ) :: adv_bc(2,2,2), phys_bc(2,2) ! dim, lohi, (comp)
 
     ! Local variables
@@ -284,16 +286,16 @@ contains
        call slopey_2d(utilde(:,:,k,:),slopey(:,:,k,:),domlo,domhi,lo,hi,ng_ut,2,adv_bc)
     else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
 
-       call ppm_2d(lo,hi,utilde(:,:,:,1),ut_lo,ut_hi, &
-            ufull(:,:,:,1),uf_lo,uf_hi, &
-            ufull(:,:,:,2),uf_lo,uf_hi, &
+       ! x-direction
+       call ppm_2d(ip_lo,ip_hi,1,1,1,utilde,ut_lo,ut_hi,nc_ut, &
+            ufull,uf_lo,uf_hi,nc_uf, &
             Ipu,ip_lo,ip_hi,Imu,im_lo,im_hi, &
-            domlo,domhi,adv_bc(:,:,1),dx,dt,.false.)
-       call ppm_2d(lo,hi,utilde(:,:,:,2),ut_lo,ut_hi, &
-            ufull(:,:,:,1),uf_lo,uf_hi, &
-            ufull(:,:,:,2),uf_lo,uf_hi, &
+            domlo,domhi,adv_bc,dx,dt,.false.)
+       ! y-direction
+       call ppm_2d(ip_lo,ip_hi,2,2,2,utilde,ut_lo,ut_hi,nc_ut, &
+            ufull,uf_lo,uf_hi,nc_uf, &
             Ipv,ip_lo,ip_hi,Imv,im_lo,im_hi, &
-            domlo,domhi,adv_bc(:,:,2),dx,dt,.false.)
+            domlo,domhi,adv_bc,dx,dt,.false.)
 
        ! trace forces, if necessary.  Note by default the ppm routines
        ! will trace each component to each interface in all coordinate
@@ -301,16 +303,16 @@ contains
        ! its respective dimension.  This should be simplified later.
        if (ppm_trace_forces .eq. 1) then
 
-          call ppm_2d(lo,hi,force(:,:,:,1),f_lo,f_hi, &
-          ufull(:,:,:,1),uf_lo,uf_hi, &
-          ufull(:,:,:,2),uf_lo,uf_hi, &
+          ! x-direction
+          call ppm_2d(ip_lo,ip_hi,1,1,1,force,f_lo,f_hi,nc_f, &
+          ufull,uf_lo,uf_hi,nc_uf, &
                Ipfx,ip_lo,ip_hi,Imfx,im_lo,im_hi, &
-               domlo,domhi,adv_bc(:,:,1),dx,dt,.false.)
-          call ppm_2d(lo,hi,force(:,:,:,2),f_lo,f_hi, &
-               ufull(:,:,:,1),uf_lo,uf_hi, &
-               ufull(:,:,:,2),uf_lo,uf_hi, &
+               domlo,domhi,adv_bc,dx,dt,.false.)
+          ! y-direction
+          call ppm_2d(ip_lo,ip_hi,2,2,2,force,f_lo,f_hi,nc_f, &
+               ufull,uf_lo,uf_hi,nc_uf, &
                Ipfy,ip_lo,ip_hi,Imfy,im_lo,im_hi, &
-               domlo,domhi,adv_bc(:,:,2),dx,dt,.false.)
+               domlo,domhi,adv_bc,dx,dt,.false.)
        endif
 
     end if

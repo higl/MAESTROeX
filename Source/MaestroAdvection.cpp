@@ -92,8 +92,8 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
         const Real* dx = geom[lev].CellSize();
 
         // get references to the MultiFabs at level lev
-        const MultiFab& utilde_mf  = utilde[lev];
-        const MultiFab& ufull_mf   = ufull[lev];
+        // const MultiFab& utilde_mf  = utilde[lev];
+        // const MultiFab& ufull_mf   = ufull[lev];
               MultiFab& utrans_mf  = utrans[lev][0];
 #if (AMREX_SPACEDIM >= 2)
               MultiFab& vtrans_mf  = utrans[lev][1];
@@ -112,6 +112,10 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
 
 	// NOTE: don't tile, but threaded in fortran subroutine
 #if (AMREX_SPACEDIM == 1 || AMREX_SPACEDIM == 3)
+
+    const MultiFab& utilde_mf  = utilde[lev];
+    const MultiFab& ufull_mf   = ufull[lev];
+
         for ( MFIter mfi(utilde_mf); mfi.isValid(); ++mfi ) {
 
             // Get the index space of the valid region
@@ -144,6 +148,9 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
 
 #else
 
+    const MultiFab& utilde_mf  = utilde[lev];
+    const MultiFab& ufull_mf   = ufull[lev];
+
 #ifdef AMREX_USE_CUDA
         int* bc_f = prepare_bc(bcs_u[0].data(), 1);
         set_bc_launch_config();
@@ -157,18 +164,52 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
             // Get the index space of the valid region
             const Box& tileBox = mfi.tilebox();
             const Box& obx = amrex::grow(tileBox, 1);
+            const Box& xbx = amrex::growHi(tileBox,1, 1);
+            const Box& ybx = amrex::growHi(tileBox,2, 1);
+
+#pragma gpu box(obx)
+            ppm_2d(AMREX_INT_ANYD(obx.loVect()),
+                   AMREX_INT_ANYD(obx.hiVect()),
+                   1, 1, 1,
+                   BL_TO_FORTRAN_ANYD(utilde_mf[mfi]), utilde_mf.nComp(),
+                   BL_TO_FORTRAN_ANYD(ufull_mf[mfi]), ufull_mf.nComp(),
+                   BL_TO_FORTRAN_ANYD(Ip[mfi]),
+                   BL_TO_FORTRAN_ANYD(Im[mfi]), AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
+                   bc_f, AMREX_REAL_ANYD(dx), dt,
+                   false);
 
             // call fortran subroutine
             // use macros in AMReX_ArrayLim.H to pass in each FAB's data,
             // lo/hi coordinates (including ghost cells), and/or the # of components
             // We will also pass "validBox", which specifies the "valid" region.
-#pragma gpu box(obx)
-            mkutrans_2d(
-                        AMREX_INT_ANYD(tileBox.loVect()), AMREX_INT_ANYD(tileBox.hiVect()),
-                        lev, AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
-                        BL_TO_FORTRAN_ANYD(utilde_mf[mfi]), utilde_mf.nComp(), utilde_mf.nGrow(),
-                        BL_TO_FORTRAN_ANYD(ufull_mf[mfi]), ufull_mf.nComp(), ufull_mf.nGrow(),
+#pragma gpu box(xbx)
+            mkutrans_2d(AMREX_INT_ANYD(xbx.loVect()), AMREX_INT_ANYD(xbx.hiVect()),
+                        lev, 1, AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
+                        BL_TO_FORTRAN_ANYD(utilde_mf[mfi]), utilde_mf.nGrow(),
+                        BL_TO_FORTRAN_ANYD(ufull_mf[mfi]), ufull_mf.nGrow(),
                         BL_TO_FORTRAN_ANYD(utrans_mf[mfi]),
+                        BL_TO_FORTRAN_ANYD(Ip[mfi]),
+                        BL_TO_FORTRAN_ANYD(Im[mfi]),
+                        w0.dataPtr(), AMREX_REAL_ANYD(dx), dt, bc_f,
+                        phys_bc.dataPtr());
+
+#pragma gpu box(obx)
+            ppm_2d(AMREX_INT_ANYD(obx.loVect()),
+                   AMREX_INT_ANYD(obx.hiVect()),
+                   2,2,2,
+                   BL_TO_FORTRAN_ANYD(utilde_mf[mfi]), utilde_mf.nComp(),
+                   BL_TO_FORTRAN_ANYD(ufull_mf[mfi]), ufull_mf.nComp(),
+                   BL_TO_FORTRAN_ANYD(Ip[mfi]),
+                   BL_TO_FORTRAN_ANYD(Im[mfi]), AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
+                   bc_f, AMREX_REAL_ANYD(dx), dt,
+                   false);
+
+#pragma gpu box(ybx)
+            mkutrans_2d(
+                        AMREX_INT_ANYD(ybx.loVect()), AMREX_INT_ANYD(ybx.hiVect()),
+                        lev, 2, AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
+                        BL_TO_FORTRAN_ANYD(utilde_mf[mfi]), utilde_mf.nGrow(),
+                        BL_TO_FORTRAN_ANYD(ufull_mf[mfi]), ufull_mf.nGrow(),
                         BL_TO_FORTRAN_ANYD(vtrans_mf[mfi]),
                         BL_TO_FORTRAN_ANYD(Ip[mfi]),
                         BL_TO_FORTRAN_ANYD(Im[mfi]),
@@ -259,7 +300,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
 #elif (AMREX_SPACEDIM == 3)
             velpred_3d(
 #endif
-                        &lev, AMREX_ARLIM_ANYD(domainBox.loVect()), AMREX_ARLIM_ANYD(domainBox.hiVect()),
+                        lev, AMREX_ARLIM_ANYD(domainBox.loVect()), AMREX_ARLIM_ANYD(domainBox.hiVect()),
                         AMREX_ARLIM_ANYD(tileBox.loVect()), AMREX_ARLIM_ANYD(tileBox.hiVect()),
                         BL_TO_FORTRAN_FAB(utilde_mf[mfi]), utilde_mf.nGrow(),
                         BL_TO_FORTRAN_FAB(ufull_mf[mfi]), ufull_mf.nGrow(),
@@ -281,7 +322,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
 #endif
 #endif
                         BL_TO_FORTRAN_FAB(force_mf[mfi]), force_mf.nGrow(),
-                        w0.dataPtr(), dx, &dt, bcs_u[0].data(), phys_bc.dataPtr());
+                        w0.dataPtr(), dx, dt, bcs_u[0].data(), phys_bc.dataPtr());
         } // end MFIter loop
     } // end loop over levels
 

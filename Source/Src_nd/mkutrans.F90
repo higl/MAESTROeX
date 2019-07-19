@@ -151,31 +151,29 @@ contains
 #endif
 
 #if (AMREX_SPACEDIM == 2)
-  subroutine mkutrans_2d(lo, hi, lev, domlo, domhi, &
-       utilde, ut_lo, ut_hi, nc_ut, ng_ut, &
-       ufull,  uf_lo, uf_hi, nc_uf, ng_uf, &
+  subroutine mkutrans_2d(lo, hi, lev, idir, &
+       domlo, domhi, &
+       utilde, ut_lo, ut_hi, ng_ut, &
+       ufull,  uf_lo, uf_hi, ng_uf, &
        utrans, uu_lo, uu_hi, &
-       vtrans, uv_lo, uv_hi, &
        Ip, ip_lo, ip_hi, &
        Im, im_lo, im_hi, &
        w0,dx,dt,adv_bc,phys_bc) bind(C,name="mkutrans_2d")
 
     implicit none
 
-    integer, value, intent(in   ) :: lev
+    integer, value, intent(in   ) :: lev, idir
     integer, intent(in) :: domlo(3), domhi(3), lo(3), hi(3)
     integer         , intent(in   ) :: ut_lo(3), ut_hi(3)
-    integer, value  , intent(in   ) :: nc_ut, ng_ut
+    integer, value  , intent(in   ) :: ng_ut
     integer         , intent(in   ) :: uf_lo(3), uf_hi(3)
-    integer, value  , intent(in   ) :: nc_uf, ng_uf
+    integer, value  , intent(in   ) :: ng_uf
     integer         , intent(in   ) :: uu_lo(3), uu_hi(3)
-    integer         , intent(in   ) :: uv_lo(3), uv_hi(3)
     integer         , intent(in   ) :: ip_lo(3), ip_hi(3)
     integer         , intent(in   ) :: im_lo(3), im_hi(3)
-    double precision, intent(in   ) :: utilde(ut_lo(1):ut_hi(1),ut_lo(2):ut_hi(2),ut_lo(3):ut_hi(3),nc_ut)
-    double precision, intent(in   ) :: ufull (uf_lo(1):uf_hi(1),uf_lo(2):uf_hi(2),uf_lo(3):uf_hi(3),nc_uf)
+    double precision, intent(in   ) :: utilde(ut_lo(1):ut_hi(1),ut_lo(2):ut_hi(2),ut_lo(3):ut_hi(3))
+    double precision, intent(in   ) :: ufull (uf_lo(1):uf_hi(1),uf_lo(2):uf_hi(2),uf_lo(3):uf_hi(3))
     double precision, intent(inout) :: utrans(uu_lo(1):uu_hi(1),uu_lo(2):uu_hi(2),uu_lo(3):uu_hi(3))
-    double precision, intent(inout) :: vtrans(uv_lo(1):uv_hi(1),uv_lo(2):uv_hi(2),uv_lo(3):uv_hi(3))
     double precision, intent(inout) :: Ip(ip_lo(1):ip_hi(1),ip_lo(2):ip_hi(2),ip_lo(3):ip_hi(3),1:2)
     double precision, intent(inout) :: Im(im_lo(1):im_hi(1),im_lo(2):im_hi(2),im_lo(3):im_hi(3),1:2)
     double precision, intent(in   ) :: w0(0:max_radial_level,0:nr_fine)
@@ -201,168 +199,177 @@ contains
 
     k = lo(3)
 
-    if (ppm_type .eq. 0) then
-       ! call slopex_2d(utilde(:,:,1:1),slopex,domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,1:1))
-       ! call slopey_2d(utilde(:,:,2:2),slopey,domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,2:2))
-
-       ! call slopex_2d(utilde(:,:,k,1:1),Ip(:,:,k,1:1),domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,1:1))
-       ! call slopey_2d(utilde(:,:,k,2:2),Im(:,:,k,1:1),domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,2:2))
-    else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-
-       call ppm_2d(lo,hi,utilde(:,:,:,1),ut_lo,ut_hi, &
-            ufull(:,:,:,1),uf_lo,uf_hi,ufull(:,:,:,2),uf_lo,uf_hi, &
-            Ip,ip_lo,ip_hi,Im,im_lo,im_hi,domlo,domhi,adv_bc(:,:,1),dx,dt,.false.)
-
-    end if
-
     !******************************************************************
     ! create utrans
     !******************************************************************
 
-    do j=lo(2),hi(2)
-       do i=lo(1),hi(1)+1
+    if (idir == 1) then
 
-          if (ppm_type .eq. 0) then
-             ! extrapolate to edges
-             ! ul = utilde(i-1,j,1) + (HALF-(dt2/hx)*max(ZERO,ufull(i-1,j,1)))*slopex(i-1,j,1)
-             ! ur = utilde(i  ,j,1) - (HALF+(dt2/hx)*min(ZERO,ufull(i  ,j,1)))*slopex(i  ,j,1)
+       ! if (ppm_type .eq. 0) then
+       !    ! call slopex_2d(utilde(:,:,1:1),slopex,domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,1:1))
+       !
+       !    ! call slopex_2d(utilde(:,:,k,1:1),Ip(:,:,k,1:1),domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,1:1))
+       ! else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
+       !
+       !    call ppm_2d(lo,hi,utilde(:,:,:,1),ut_lo,ut_hi, &
+       !         ufull(:,:,:,1),uf_lo,uf_hi,ufull(:,:,:,2),uf_lo,uf_hi, &
+       !         Ip,ip_lo,ip_hi,Im,im_lo,im_hi,domlo,domhi,adv_bc(:,:,1),dx,dt,.false.)
+       !
+       ! end if
 
-             ul = utilde(i-1,j,k,1) + (HALF-(dt2/hx)*max(ZERO,ufull(i-1,j,k,1)))*Ip(i-1,j,k,1)
-             ur = utilde(i  ,j,k,1) - (HALF+(dt2/hx)*min(ZERO,ufull(i  ,j,k,1)))*Ip(i  ,j,k,1)
-          else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-             ! extrapolate to edges
-             ul = Ip(i-1,j,k,1)
-             ur = Im(i  ,j,k,1)
-          end if
-          ! end do
+       do j=lo(2),hi(2)
+          do i=lo(1),hi(1)!+1
 
-          ! impose lo i side bc's
-          if (i .eq. lo(1) .and. lo(1) .eq. domlo(1)) then
-             select case(phys_bc(1,1))
-             case (Inflow)
-                ul = utilde(lo(1)-1,j,k,1)
-                ur = utilde(lo(1)-1,j,k,1)
-             case (SlipWall, NoSlipWall, Symmetry)
-                ul = ZERO
-                ur = ZERO
-             case (Outflow)
-                ul = min(ur,ZERO)
-                ur = ul
-             case (Interior)
-             case  default
+             if (ppm_type .eq. 0) then
+                ! extrapolate to edges
+                ! ul = utilde(i-1,j,1) + (HALF-(dt2/hx)*max(ZERO,ufull(i-1,j,1)))*slopex(i-1,j,1)
+                ! ur = utilde(i  ,j,1) - (HALF+(dt2/hx)*min(ZERO,ufull(i  ,j,1)))*slopex(i  ,j,1)
+
+                ul = utilde(i-1,j,k) + (HALF-(dt2/hx)*max(ZERO,ufull(i-1,j,k)))*Ip(i-1,j,k,1)
+                ur = utilde(i  ,j,k) - (HALF+(dt2/hx)*min(ZERO,ufull(i  ,j,k)))*Ip(i  ,j,k,1)
+             else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
+                ! extrapolate to edges
+                ul = Ip(i-1,j,k,1)
+                ur = Im(i  ,j,k,1)
+             end if
+             ! end do
+
+             ! impose lo i side bc's
+             if (i .eq. lo(1) .and. lo(1) .eq. domlo(1)) then
+                select case(phys_bc(1,1))
+                case (Inflow)
+                   ul = utilde(i-1,j,k)
+                   ur = utilde(i-1,j,k)
+                case (SlipWall, NoSlipWall, Symmetry)
+                   ul = ZERO
+                   ur = ZERO
+                case (Outflow)
+                   ul = min(ur,ZERO)
+                   ur = ul
+                case (Interior)
+                case  default
 #ifndef AMREX_USE_CUDA
-                call amrex_error("mkutrans_2d: invalid boundary type phys_bc(1,1)")
+                   call amrex_error("mkutrans_2d: invalid boundary type phys_bc(1,1)")
 #endif
-             end select
-          end if
+                end select
+             end if
 
-          ! impose hi i side bc's
-          if (i .eq. hi(1)+1 .and. hi(1) .eq. domhi(1)) then
-             select case(phys_bc(1,2))
-             case (Inflow)
-                ul = utilde(hi(1)+1,j,k,1)
-                ur = utilde(hi(1)+1,j,k,1)
-             case (SlipWall, NoSlipWall, Symmetry)
-                ul = ZERO
-                ur = ZERO
-             case (Outflow)
-                ul = max(ul,ZERO)
-                ur = ul
-             case (Interior)
-             case  default
+             ! impose hi i side bc's
+             if (i .eq. hi(1) .and. hi(1)-1 .eq. domhi(1)) then
+                select case(phys_bc(1,2))
+                case (Inflow)
+                   ul = utilde(i,j,k)
+                   ur = utilde(i,j,k)
+                case (SlipWall, NoSlipWall, Symmetry)
+                   ul = ZERO
+                   ur = ZERO
+                case (Outflow)
+                   ul = max(ul,ZERO)
+                   ur = ul
+                case (Interior)
+                case  default
 #ifndef AMREX_USE_CUDA
-                call amrex_error("mkutrans_2d: invalid boundary type phys_bc(1,2)")
+                   call amrex_error("mkutrans_2d: invalid boundary type phys_bc(1,2)")
 #endif
-             end select
-          end if
+                end select
+             end if
 
-          ! solve Riemann problem using full velocity
-          uavg = HALF*(ul+ur)
-          test = ((ul .le. ZERO .and. ur .ge. ZERO) .or. &
-               (abs(ul+ur) .lt. rel_eps))
-          utrans(i,j,k) = merge(ul,ur,uavg .gt. ZERO)
-          utrans(i,j,k) = merge(ZERO,utrans(i,j,k),test)
+             ! solve Riemann problem using full velocity
+             uavg = HALF*(ul+ur)
+             test = ((ul .le. ZERO .and. ur .ge. ZERO) .or. &
+                  (abs(ul+ur) .lt. rel_eps))
+             utrans(i,j,k) = merge(ul,ur,uavg .gt. ZERO)
+             utrans(i,j,k) = merge(ZERO,utrans(i,j,k),test)
+          end do
        end do
-    end do
 
-    !******************************************************************
-    ! create vtrans
-    !******************************************************************
-    if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
+    else
 
-       call ppm_2d(lo,hi,utilde(:,:,:,2),ut_lo,ut_hi, &
-            ufull(:,:,:,1),uf_lo,uf_hi,&
-            ufull(:,:,:,2),uf_lo,uf_hi, &
-            Ip,ip_lo,ip_hi,Im,im_lo,im_hi,domlo,domhi,adv_bc(:,:,2),dx,dt,.false.)
+       !******************************************************************
+       ! create vtrans
+       !******************************************************************
+       ! if (ppm_type .eq. 0) then
+       !    ! call slopex_2d(utilde(:,:,1:1),slopex,domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,1:1))
+       !    ! call slopey_2d(utilde(:,:,2:2),slopey,domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,2:2))
+       !
+       !    ! call slopey_2d(utilde(:,:,k,2:2),Im(:,:,k,1:1),domlo,domhi,lo,hi,ng_ut,1,adv_bc(:,:,2:2))
+       ! else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
+       !
+       !    call ppm_2d(lo,hi,utilde(:,:,:,2),ut_lo,ut_hi, &
+       !         ufull(:,:,:,1),uf_lo,uf_hi,&
+       !         ufull(:,:,:,2),uf_lo,uf_hi, &
+       !         Ip,ip_lo,ip_hi,Im,im_lo,im_hi,domlo,domhi,adv_bc(:,:,2),dx,dt,.false.)
+       !
+       ! end if
 
-    end if
+       do j=lo(2),hi(2)
+          do i=lo(1),hi(1)
 
-    do j=lo(2),hi(2)+1
-       do i=lo(1),hi(1)
+             if (ppm_type .eq. 0) then
+                ! ! extrapolate to edges
+                ! vl = utilde(i,j-1,2) + (HALF-(dt2/hy)*max(ZERO,ufull(i,j-1,2)))*slopey(i,j-1,1)
+                ! vr = utilde(i,j  ,2) - (HALF+(dt2/hy)*min(ZERO,ufull(i,j  ,2)))*slopey(i,j  ,1)
 
-          if (ppm_type .eq. 0) then
-             ! ! extrapolate to edges
-             ! vl = utilde(i,j-1,2) + (HALF-(dt2/hy)*max(ZERO,ufull(i,j-1,2)))*slopey(i,j-1,1)
-             ! vr = utilde(i,j  ,2) - (HALF+(dt2/hy)*min(ZERO,ufull(i,j  ,2)))*slopey(i,j  ,1)
+                ! extrapolate to edges
+                vl = utilde(i,j-1,k) + (HALF-(dt2/hy)*max(ZERO,ufull(i,j-1,k)))*Im(i,j-1,k,1)
+                vr = utilde(i,j  ,k) - (HALF+(dt2/hy)*min(ZERO,ufull(i,j  ,k)))*Im(i,j  ,k,1)
 
-             ! extrapolate to edges
-             vl = utilde(i,j-1,k,2) + (HALF-(dt2/hy)*max(ZERO,ufull(i,j-1,k,2)))*Im(i,j-1,k,1)
-             vr = utilde(i,j  ,k,2) - (HALF+(dt2/hy)*min(ZERO,ufull(i,j  ,k,2)))*Im(i,j  ,k,1)
+             else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
+                ! extrapolate to edges
+                vl = Ip(i,j-1,k,2)
+                vr = Im(i,j  ,k,2)
+             end if
 
-          else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-             ! extrapolate to edges
-             vl = Ip(i,j-1,k,2)
-             vr = Im(i,j  ,k,2)
-          end if
-
-          ! impose lo side bc's
-          if (j .eq. lo(2) .and. lo(2) .eq. domlo(2)) then
-             select case(phys_bc(2,1))
-             case (Inflow)
-                vl = utilde(i,lo(2)-1,k,2)
-                vr = utilde(i,lo(2)-1,k,2)
-             case (SlipWall, NoSlipWall, Symmetry)
-                vr = ZERO
-                vr = ZERO
-             case (Outflow)
-                vl = min(vr,ZERO)
-                vr = vl
-             case (Interior)
-             case  default
+             ! impose lo side bc's
+             if (j .eq. lo(2) .and. lo(2) .eq. domlo(2)) then
+                select case(phys_bc(2,1))
+                case (Inflow)
+                   vl = utilde(i,j-1,k)
+                   vr = utilde(i,j-1,k)
+                case (SlipWall, NoSlipWall, Symmetry)
+                   vr = ZERO
+                   vr = ZERO
+                case (Outflow)
+                   vl = min(vr,ZERO)
+                   vr = vl
+                case (Interior)
+                case  default
 #ifndef AMREX_USE_CUDA
-                call amrex_error("mkutrans_2d: invalid boundary type phys_bc(2,1)")
+                   call amrex_error("mkutrans_2d: invalid boundary type phys_bc(2,1)")
 #endif
-             end select
-          end if
+                end select
+             end if
 
-          ! impose hi side bc's
-          if (j .eq. hi(2)+1 .and. hi(2) .eq. domhi(2)) then
-             select case(phys_bc(2,2))
-             case (Inflow)
-                vl = utilde(i,hi(2)+1,k,2)
-                vr = utilde(i,hi(2)+1,k,2)
-             case (SlipWall, NoSlipWall, Symmetry)
-                vl = ZERO
-                vr = ZERO
-             case (Outflow)
-                vl = max(vl,ZERO)
-                vr = vl
-             case (Interior)
-             case  default
+             ! impose hi side bc's
+             if (j .eq. hi(2) .and. hi(2)-1 .eq. domhi(2)) then
+                select case(phys_bc(2,2))
+                case (Inflow)
+                   vl = utilde(i,j,k)
+                   vr = utilde(i,j,k)
+                case (SlipWall, NoSlipWall, Symmetry)
+                   vl = ZERO
+                   vr = ZERO
+                case (Outflow)
+                   vl = max(vl,ZERO)
+                   vr = vl
+                case (Interior)
+                case  default
 #ifndef AMREX_USE_CUDA
-                call amrex_error("mkutrans_2d: invalid boundary type phys_bc(2,2)")
+                   call amrex_error("mkutrans_2d: invalid boundary type phys_bc(2,2)")
 #endif
-             end select
-          end if
+                end select
+             end if
 
-          ! solve Riemann problem using full velocity
-          uavg = HALF*(vl+vr)
-          test = ((vl+w0(lev,j) .le. ZERO .and. vr+w0(lev,j) .ge. ZERO) .or. &
-               (abs(vl+vr+TWO*w0(lev,j)) .lt. rel_eps))
-          vtrans(i,j,k) = merge(vl,vr,uavg+w0(lev,j) .gt. ZERO)
-          vtrans(i,j,k) = merge(ZERO,vtrans(i,j,k),test)
+             ! solve Riemann problem using full velocity
+             uavg = HALF*(vl+vr)
+             test = ((vl+w0(lev,j) .le. ZERO .and. vr+w0(lev,j) .ge. ZERO) .or. &
+                  (abs(vl+vr+TWO*w0(lev,j)) .lt. rel_eps))
+             utrans(i,j,k) = merge(vl,vr,uavg+w0(lev,j) .gt. ZERO)
+             utrans(i,j,k) = merge(ZERO,utrans(i,j,k),test)
+          enddo
        enddo
-    enddo
+
+    endif
 
   end subroutine mkutrans_2d
 #endif

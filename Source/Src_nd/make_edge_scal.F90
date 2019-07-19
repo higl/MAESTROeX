@@ -302,16 +302,28 @@ contains
        call slopex_2d(s(:,:,k,comp:comp),slopex(:,:,k,:),domlo,domhi,lo,hi,ng_s,1,adv_bc(:,:,bccomp:bccomp))
        call slopey_2d(s(:,:,k,comp:comp),slopey(:,:,k,:),domlo,domhi,lo,hi,ng_s,1,adv_bc(:,:,bccomp:bccomp))
     else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-
-       call ppm_2d(lo,hi,s(:,:,:,comp),s_lo,s_hi,&
-       umac,u_lo,u_hi,vmac,v_lo,v_hi,&
+       ! x-direction
+       call ppm_2d(ip_lo,ip_hi,1,comp,bccomp,s,s_lo,s_hi,nc_s,&
+       umac,u_lo,u_hi,1,&
        Ip,ip_lo,ip_hi,Im,im_lo,im_hi, &
-                    domlo,domhi,adv_bc(:,:,bccomp),dx,dt,.true.)
+                    domlo,domhi,adv_bc,dx,dt,.true.)
+       ! y-direction
+       call ppm_2d(ip_lo,ip_hi,2,comp,bccomp,s,s_lo,s_hi,nc_s,&
+       vmac,v_lo,v_hi,1,&
+       Ip,ip_lo,ip_hi,Im,im_lo,im_hi, &
+                   domlo,domhi,adv_bc,dx,dt,.true.)
        if (ppm_trace_forces .eq. 1) then
-          call ppm_2d(lo,hi,force(:,:,:,comp),f_lo,f_hi,&
-          umac,u_lo,u_hi,vmac,v_lo,v_hi,&
+          ! x-direction
+          call ppm_2d(ip_lo,ip_hi,1,comp,bccomp,force,f_lo,f_hi,nc_f,&
+          umac,u_lo,u_hi,1,&
           Ipf,ip_lo,ip_hi,Imf,im_lo,im_hi, &
-                       domlo,domhi,adv_bc(:,:,bccomp),dx,dt,.true.)
+                       domlo,domhi,adv_bc,dx,dt,.true.)
+
+          ! y-direction
+          call ppm_2d(ip_lo,ip_hi,2,comp,bccomp,force,f_lo,f_hi,nc_f,&
+          vmac,v_lo,v_hi,1,&
+          Ipf,ip_lo,ip_hi,Imf,im_lo,im_hi, &
+                      domlo,domhi,adv_bc,dx,dt,.true.)
        end if
 
     end if
