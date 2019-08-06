@@ -106,7 +106,7 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
                 // we're going to reuse Ip here as slopex as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(u_mf[mfi]),
                           u_mf.nComp(),
@@ -157,7 +157,7 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
                 // we're going to reuse Im here as slopey as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(v_mf[mfi]),
                           v_mf.nComp(),
@@ -259,7 +259,7 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
                 // correct number of ghost zones
 
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(u_mf[mfi]),
                           u_mf.nComp(),
@@ -308,7 +308,7 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
                 // correct number of ghost zones
 
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(v_mf[mfi]),
                           v_mf.nComp(),
@@ -357,7 +357,7 @@ Maestro::MakeUtrans (const Vector<MultiFab>& utilde,
                 // correct number of ghost zones
 
 #pragma gpu box(obx)
-                slopez_3d(AMREX_INT_ANYD(obx.loVect()),
+                slopez(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(w_mf[mfi]),
                           w_mf.nComp(),
@@ -583,7 +583,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
                 // we're going to reuse Ip here as slopex as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(utilde_mf[mfi]),
                           utilde_mf.nComp(),
@@ -631,7 +631,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
                 // we're going to reuse Im here as slopey as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(utilde_mf[mfi]),
                           utilde_mf.nComp(),
@@ -806,7 +806,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
                 // we're going to reuse Ip here as slopex as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(utilde_mf[mfi]),
                           utilde_mf.nComp(),
@@ -855,7 +855,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
                 // we're going to reuse Im here as slopey as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(utilde_mf[mfi]),
                           utilde_mf.nComp(),
@@ -904,7 +904,7 @@ Maestro::VelPred (const Vector<MultiFab>& utilde,
                 // we're going to reuse Im here as slopey as it has the
                 // correct number of ghost zones
 #pragma gpu box(obx)
-                slopez_3d(AMREX_INT_ANYD(obx.loVect()),
+                slopez(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(utilde_mf[mfi]),
                           utilde_mf.nComp(),
@@ -1402,7 +1402,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                 // Be careful to pass in comp+1 for fortran indexing
                 // x-direction
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
@@ -1413,7 +1413,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
                 // y-direction
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
@@ -1464,13 +1464,15 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
             // x-direction
 #pragma gpu box(mxbx)
-            make_edge_scal_predictor_2d(
+            make_edge_scal_predictor(
                 AMREX_INT_ANYD(mxbx.loVect()), AMREX_INT_ANYD(mxbx.hiVect()), 1,
                 AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
                 BL_TO_FORTRAN_ANYD(scal_mf[mfi]), scal_mf.nComp(),
                 BL_TO_FORTRAN_ANYD(umac_mf[mfi]),
                 BL_TO_FORTRAN_ANYD(vmac_mf[mfi]),
+                BL_TO_FORTRAN_ANYD(vmac_mf[mfi]),
                 BL_TO_FORTRAN_ANYD(Ip[mfi]), num_comp,
+                BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
                 BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
                 BL_TO_FORTRAN_ANYD(slx[mfi]), slx.nComp(),
                 BL_TO_FORTRAN_ANYD(srx[mfi]), srx.nComp(),
@@ -1480,13 +1482,15 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
             // y-direction
 #pragma gpu box(mybx)
-            make_edge_scal_predictor_2d(
+            make_edge_scal_predictor(
                 AMREX_INT_ANYD(mybx.loVect()), AMREX_INT_ANYD(mybx.hiVect()), 2,
                 AMREX_INT_ANYD(domainBox.loVect()), AMREX_INT_ANYD(domainBox.hiVect()),
                 BL_TO_FORTRAN_ANYD(scal_mf[mfi]), scal_mf.nComp(),
                 BL_TO_FORTRAN_ANYD(umac_mf[mfi]),
                 BL_TO_FORTRAN_ANYD(vmac_mf[mfi]),
+                BL_TO_FORTRAN_ANYD(vmac_mf[mfi]),
                 BL_TO_FORTRAN_ANYD(Ip[mfi]), num_comp,
+                BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
                 BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
                 BL_TO_FORTRAN_ANYD(sly[mfi]), sly.nComp(),
                 BL_TO_FORTRAN_ANYD(sry[mfi]), sry.nComp(),
@@ -1578,7 +1582,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
                 // x-direction
 #pragma gpu box(obx)
-                slopex_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopex(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
@@ -1588,7 +1592,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
                 // y-direction
 #pragma gpu box(obx)
-                slopey_2d(AMREX_INT_ANYD(obx.loVect()),
+                slopey(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
@@ -1598,7 +1602,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
                 // z-direction
 #pragma gpu box(obx)
-                slopez_3d(AMREX_INT_ANYD(obx.loVect()),
+                slopez(AMREX_INT_ANYD(obx.loVect()),
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
@@ -1661,7 +1665,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
             // x-direction
 #pragma gpu box(mxbx)
-            make_edge_scal_predictor_3d(AMREX_INT_ANYD(mxbx.loVect()),
+            make_edge_scal_predictor(AMREX_INT_ANYD(mxbx.loVect()),
                                         AMREX_INT_ANYD(mxbx.hiVect()), 1,
                                         AMREX_INT_ANYD(domainBox.loVect()),
                                         AMREX_INT_ANYD(domainBox.hiVect()),
@@ -1680,7 +1684,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
             // y-direction
 #pragma gpu box(mybx)
-            make_edge_scal_predictor_3d(AMREX_INT_ANYD(mybx.loVect()),
+            make_edge_scal_predictor(AMREX_INT_ANYD(mybx.loVect()),
                                         AMREX_INT_ANYD(mybx.hiVect()), 2,
                                         AMREX_INT_ANYD(domainBox.loVect()),
                                         AMREX_INT_ANYD(domainBox.hiVect()),
@@ -1699,7 +1703,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
 
             // z-direction
 #pragma gpu box(mzbx)
-            make_edge_scal_predictor_3d(AMREX_INT_ANYD(mzbx.loVect()),
+            make_edge_scal_predictor(AMREX_INT_ANYD(mzbx.loVect()),
                                         AMREX_INT_ANYD(mzbx.hiVect()), 3,
                                         AMREX_INT_ANYD(domainBox.loVect()),
                                         AMREX_INT_ANYD(domainBox.hiVect()),

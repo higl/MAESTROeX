@@ -27,19 +27,6 @@ extern "C"
                       const int is_conservative);
 
 #elif (AMREX_SPACEDIM == 2)
-  void make_edge_scal_predictor_2d(const int* lo, const int* hi, const int idir,
-                    const int* domlo, const int* domhi,
-                    const amrex::Real* s, const int* s_lo, const int* s_hi, const int nc_s,
-                    const amrex::Real* umac,   const int* u_lo, const int* u_hi,
-                    const amrex::Real* vmac,   const int* v_lo, const int* v_hi,
-                    const amrex::Real* Ip, const int* ip_lo, const int* ip_hi, const int ip_dim,
-                    const amrex::Real* Im, const int* im_lo, const int* im_hi, const int im_dim,
-                    amrex::Real* sl, const int* sl_lo, const int* sl_hi, const int nc_sl,
-                    amrex::Real* sr, const int* sr_lo, const int* sr_hi, const int nc_sr,
-                    amrex::Real* simh, const int* si_lo, const int* si_hi, const int nc_si,
-                    const amrex::Real* dx, const amrex::Real dt, const int is_vel,
-                    const int* adv_bc, const int nbccomp, const int ncomp, const int start_comp, const int start_bccomp);
-
     void make_edge_scal_2d(const int* lo, const int* hi, const int idir,
                       const int* domlo, const int* domhi,
                     const amrex::Real* s,      const int* s_lo, const int* s_hi, const int nc_s,
@@ -55,17 +42,9 @@ extern "C"
                     const amrex::Real* dx, const amrex::Real dt, const int is_vel,
                     const int* adv_bc, const int nbccomp, const int ncomp, const int start_comp, const int start_bccomp,
                     const int is_conservative);
-
-#elif (AMREX_SPACEDIM == 3)
-
-    void make_divu(const int* lo, const int* hi,
-                      amrex::Real* divu, const int* d_lo, const int* d_hi,
-                      const amrex::Real* umac,   const int* u_lo, const int* u_hi,
-                      const amrex::Real* vmac,   const int* v_lo, const int* v_hi,
-                      const amrex::Real* wmac,   const int* w_lo, const int* w_hi,
-                      const amrex::Real* dx, const int is_conservative);
-
-    void make_edge_scal_predictor_3d(const int* lo, const int* hi,
+#endif
+#if (AMREX_SPACEDIM >= 2)
+    void make_edge_scal_predictor(const int* lo, const int* hi,
                       const int idir,
                       const int* domlo, const int* domhi,
                       const amrex::Real* s,      const int* s_lo, const int* s_hi, const int nc_s,
@@ -81,6 +60,15 @@ extern "C"
                       const amrex::Real* dx, const amrex::Real dt, const int is_vel,
                       const int* adv_bc, const int nbccomp, const int ncomp,
                       const int start_comp, const int start_bccomp);
+#endif
+#if (AMREX_SPACEDIM == 3)
+
+    void make_divu(const int* lo, const int* hi,
+                      amrex::Real* divu, const int* d_lo, const int* d_hi,
+                      const amrex::Real* umac,   const int* u_lo, const int* u_hi,
+                      const amrex::Real* vmac,   const int* v_lo, const int* v_hi,
+                      const amrex::Real* wmac,   const int* w_lo, const int* w_hi,
+                      const amrex::Real* dx, const int is_conservative);
 
     void make_edge_scal_transverse_3d(const int* lo, const int* hi,
                       const int norm_dir, const int trans_dir,
@@ -197,7 +185,7 @@ extern "C"
     //////////////////////
     // in slope.F90
 #if (AMREX_SPACEDIM >= 2)
-    void slopex_2d(const int* lo, const int* hi,
+    void slopex(const int* lo, const int* hi,
                    const amrex::Real* state, const int* s_lo, const int* s_hi, const int nc_s,
                    const amrex::Real* slopex, const int* sl_lo, const int* sl_hi,
                    const int nc_sl,
@@ -205,7 +193,7 @@ extern "C"
                    const int nvar, const int startcomp,
                    const int* adv_bc, const int nbccomp, const int start_bccomp);
 
-   void slopey_2d(const int* lo, const int* hi,
+   void slopey(const int* lo, const int* hi,
                   const amrex::Real* state, const int* s_lo, const int* s_hi, const int nc_s,
                   const amrex::Real* slopey, const int* sl_lo, const int* sl_hi,
                   const int nc_sl,
@@ -213,7 +201,7 @@ extern "C"
                   const int nvar, const int startcomp,
                   const int* adv_bc, const int nbccomp, const int start_bccomp);
 #if (AMREX_SPACEDIM == 3)
-    void slopez_3d(const int* lo, const int* hi,
+    void slopez(const int* lo, const int* hi,
                   const amrex::Real* state, const int* s_lo, const int* s_hi, const int nc_s,
                   const amrex::Real* slopez, const int* sl_lo, const int* sl_hi,
                   const int nc_sl,

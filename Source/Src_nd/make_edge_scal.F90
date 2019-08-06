@@ -201,212 +201,6 @@ contains
 
 
 #if (AMREX_SPACEDIM == 2)
-  subroutine make_edge_scal_predictor_2d(lo, hi, idir, domlo, domhi, &
-       s,      s_lo, s_hi, nc_s, &
-       umac,   u_lo, u_hi, &
-       vmac,   v_lo, v_hi,&
-       Ip, ip_lo, ip_hi, ip_dim, &
-       Im, im_lo, im_hi, im_dim, &
-       sl, sl_lo, sl_hi, nc_sl, &
-       sr, sr_lo, sr_hi, nc_sr, &
-       simh, si_lo, si_hi, nc_si, &
-       dx, dt, is_vel, adv_bc, nbccomp, &
-       ncomp, start_comp, start_bccomp) bind(C,name="make_edge_scal_predictor_2d")
-
-    integer         , intent(in   ) :: domlo(3), domhi(3), lo(3), hi(3)
-    integer         , intent(in   ) :: s_lo(3), s_hi(3)
-    integer, value,   intent(in   ) :: idir, nc_s, ip_dim, im_dim, nc_sl, nc_sr, nc_si
-    integer         , intent(in   ) :: u_lo(3), u_hi(3)
-    integer         , intent(in   ) :: v_lo(3), v_hi(3)
-    integer         , intent(in   ) :: ip_lo(3), ip_hi(3)
-    integer         , intent(in   ) :: im_lo(3), im_hi(3)
-    integer         , intent(in   ) :: sl_lo(3), sl_hi(3)
-    integer         , intent(in   ) :: sr_lo(3), sr_hi(3)
-    integer         , intent(in   ) :: si_lo(3), si_hi(3)
-    double precision, intent(in   ) :: s     (s_lo(1):s_hi(1),s_lo(2):s_hi(2),s_lo(3):s_hi(3),nc_s)
-    double precision, intent(in   ) :: umac  (u_lo(1):u_hi(1),u_lo(2):u_hi(2),u_lo(3):u_hi(3))
-    double precision, intent(in   ) :: vmac  (v_lo(1):v_hi(1),v_lo(2):v_hi(2),v_lo(3):v_hi(3))
-    double precision, intent(inout) :: Ip(ip_lo(1):ip_hi(1),ip_lo(2):ip_hi(2),ip_lo(3):ip_hi(3),ip_dim,AMREX_SPACEDIM)
-    double precision, intent(inout) :: Im(im_lo(1):im_hi(1),im_lo(2):im_hi(2),im_lo(3):im_hi(3),im_dim,AMREX_SPACEDIM)
-    double precision, intent(inout) :: sl     (sl_lo(1):sl_hi(1),sl_lo(2):sl_hi(2),sl_lo(3):sl_hi(3),nc_sl)
-    double precision, intent(inout) :: sr     (sr_lo(1):sr_hi(1),sr_lo(2):sr_hi(2),sr_lo(3):sr_hi(3),nc_sr)
-    double precision, intent(inout) :: simh     (si_lo(1):si_hi(1),si_lo(2):si_hi(2),si_lo(3):si_hi(3),nc_si)
-    double precision, intent(in   ) :: dx(3)
-    double precision, value, intent(in   ) :: dt
-    integer, value, intent(in   ) :: is_vel, nbccomp, ncomp, start_comp, start_bccomp
-    integer         , intent(in   ) :: adv_bc(AMREX_SPACEDIM,2,nbccomp)
-
-    ! Local variables
-
-    double precision :: hx,hy,dt2,dt4,savg
-
-    integer :: i,j,k,m,comp,bccomp
-
-    !$gpu
-
-    k = lo(3)
-
-    dt2 = HALF*dt
-    dt4 = dt/4.0d0
-
-    hx = dx(1)
-    hy = dx(2)
-
-    do m = 1, ncomp
-       bccomp = start_bccomp + m-1
-       comp = start_comp + m-1
-
-       !******************************************************************
-       ! Create s_{\i-\half\e_x}^x, etc.
-       !******************************************************************
-
-       if (idir == 1) then
-
-          ! loop over appropriate x-faces
-          do j=lo(2),hi(2)
-             do i=lo(1),hi(1)
-                if (ppm_type .eq. 0) then
-                   ! make slx, srx with 1D extrapolation
-                   sl(i,j,k,m) = s(i-1,j,k,comp) + (HALF - dt2*umac(i,j,k)/hx)*Ip(i-1,j,k,m,1)
-                   sr(i,j,k,m) = s(i  ,j,k,comp) - (HALF + dt2*umac(i,j,k)/hx)*Ip(i  ,j,k,m,1)
-                else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-                   ! make slx, srx with 1D extrapolation
-                   sl(i,j,k,m) = Ip(i-1,j,k,m,1)
-                   sr(i,j,k,m) = Im(i  ,j,k,m,1)
-                end if
-
-                ! impose lo side bc's
-                if (i .eq. lo(1) .and. lo(1) .eq. domlo(1)) then
-                   if (adv_bc(1,1,bccomp) .eq. EXT_DIR) then
-                      sl(i,j,k,m) = s(i-1,j,k,comp)
-                      sr(i,j,k,m) = s(i-1,j,k,comp)
-                   else if (adv_bc(1,1,bccomp) .eq. FOEXTRAP .or. &
-                        adv_bc(1,1,bccomp) .eq. HOEXTRAP) then
-                      if (is_vel .eq. 1 .and. comp .eq. 1) then
-                         sr(i,j,k,m) = min(sr(i,j,k,m),0.d0)
-                      end if
-                      sl(i,j,k,m) = sr(i,j,k,m)
-                   else if (adv_bc(1,1,bccomp) .eq. REFLECT_EVEN) then
-                      sl(i,j,k,m) = sr(i,j,k,m)
-                   else if (adv_bc(1,1,bccomp) .eq. REFLECT_ODD) then
-                      sl(i,j,k,m) = 0.d0
-                      sr(i,j,k,m) = 0.d0
-                   else if (adv_bc(1,1,bccomp) .eq. INT_DIR) then
-                   else
-#ifndef AMREX_USE_GPU
-                      call amrex_error("make_edge_scal_2d: invalid boundary type adv_bc(1,1)")
-#endif
-                   end if
-                end if
-
-                ! impose hi side bc's
-                if (i .eq. hi(1) .and. hi(1)-1 .eq. domhi(1)) then
-                   if (adv_bc(1,2,bccomp) .eq. EXT_DIR) then
-                      sl(i,j,k,m) = s(i,j,k,comp)
-                      sr(i,j,k,m) = s(i,j,k,comp)
-                   else if (adv_bc(1,2,bccomp) .eq. FOEXTRAP .or. &
-                        adv_bc(1,2,bccomp) .eq. HOEXTRAP) then
-                      if (is_vel .eq. 1 .and. comp .eq. 1) then
-                         sl(i,j,k,m) = max(sl(i,j,k,m),0.d0)
-                      end if
-                      sr(i,j,k,m) = sl(i,j,k,m)
-                   else if (adv_bc(1,2,bccomp) .eq. REFLECT_EVEN) then
-                      sr(i,j,k,m) = sl(i,j,k,m)
-                   else if (adv_bc(1,2,bccomp) .eq. REFLECT_ODD) then
-                      sl(i,j,k,m) = 0.d0
-                      sr(i,j,k,m) = 0.d0
-                   else if (adv_bc(1,2,bccomp) .eq. INT_DIR) then
-                   else
-#ifndef AMREX_USE_GPU
-                      call amrex_error("make_edge_scal_2d: invalid boundary type adv_bc(1,2)")
-#endif
-                   end if
-                end if
-
-                ! make simhx by solving Riemann problem
-                simh(i,j,k,m) = merge(sl(i,j,k,m),sr(i,j,k,m),umac(i,j,k) .gt. 0.d0)
-                savg = HALF*(sl(i,j,k,m)+sr(i,j,k,m))
-                simh(i,j,k,m) = merge(simh(i,j,k,m),savg,abs(umac(i,j,k)) .gt. rel_eps)
-             enddo
-          enddo
-
-       else
-
-          ! loop over appropriate y-faces
-          do j=lo(2),hi(2)
-             do i=lo(1),hi(1)
-
-                if (ppm_type .eq. 0) then
-                   ! make sly, sry with 1D extrapolation
-                   sl(i,j,k,m) = s(i,j-1,k,comp) + (HALF - dt2*vmac(i,j,k)/hy)*Im(i,j-1,k,m,1)
-                   sr(i,j,k,m) = s(i,j,k,comp) - (HALF + dt2*vmac(i,j,k)/hy)*Im(i,j,k,m,1)
-                else if (ppm_type .eq. 1 .or. ppm_type .eq. 2) then
-                   ! make sly, sry with 1D extrapolation
-                   sl(i,j,k,m) = Ip(i,j-1,k,m,2)
-                   sr(i,j,k,m) = Im(i,j,k,m,2)
-                end if
-
-                ! impose lo side bc's
-                if (j .eq. lo(2) .and. lo(2) .eq. domlo(2)) then
-                   if (adv_bc(2,1,bccomp) .eq. EXT_DIR) then
-                      sl(i,j,k,m) = s(i,j-1,k,comp)
-                      sr(i,j,k,m) = s(i,j-1,k,comp)
-                   else if (adv_bc(2,1,bccomp) .eq. FOEXTRAP .or. &
-                        adv_bc(2,1,bccomp) .eq. HOEXTRAP) then
-                      if (is_vel .eq. 1 .and. comp .eq. 2) then
-                         sr(i,j,k,m) = min(sr(i,j,k,m),0.d0)
-                      end if
-                      sl(i,j,k,m) = sr(i,j,k,m)
-                   else if (adv_bc(2,1,bccomp) .eq. REFLECT_EVEN) then
-                      sl(i,j,k,m) = sr(i,j,k,m)
-                   else if (adv_bc(2,1,bccomp) .eq. REFLECT_ODD) then
-                      sl(i,j,k,m) = 0.d0
-                      sr(i,j,k,m) = 0.d0
-                   else if (adv_bc(2,1,bccomp) .eq. INT_DIR) then
-                   else
-#ifndef AMREX_USE_GPU
-                      call amrex_error("make_edge_scal_2d: invalid boundary type adv_bc(2,1)")
-#endif
-                   end if
-                end if
-
-                ! impose hi side bc's
-                if (j .eq. hi(2) .and. hi(2)-1 .eq. domhi(2)) then
-                   if (adv_bc(2,2,bccomp) .eq. EXT_DIR) then
-                      sl(i,j,k,m) = s(i,j,k,comp)
-                      sr(i,j,k,m) = s(i,j,k,comp)
-                   else if (adv_bc(2,2,bccomp) .eq. FOEXTRAP .or. &
-                        adv_bc(2,2,bccomp) .eq. HOEXTRAP) then
-                      if (is_vel .eq. 1 .and. comp .eq. 2) then
-                         sl(i,j,k,m) = max(sl(i,j,k,m),0.d0)
-                      end if
-                      sr(i,j,k,m) = sl(i,j,k,m)
-                   else if (adv_bc(2,2,bccomp) .eq. REFLECT_EVEN) then
-                      sr(i,j,k,m) = sl(i,j,k,m)
-                   else if (adv_bc(2,2,bccomp) .eq. REFLECT_ODD) then
-                      sl(i,j,k,m) = 0.d0
-                      sr(i,j,k,m) = 0.d0
-                   else if (adv_bc(2,2,bccomp) .eq. INT_DIR) then
-                   else
-#ifndef AMREX_USE_GPU
-                      call amrex_error("make_edge_scal_2d: invalid boundary type adv_bc(2,2)")
-#endif
-                   end if
-                end if
-
-                ! make simhy by solving Riemann problem
-                simh(i,j,k,m) = merge(sl(i,j,k,m),sr(i,j,k,m),vmac(i,j,k) .gt. 0.d0)
-                savg = HALF*(sl(i,j,k,m)+sr(i,j,k,m))
-                simh(i,j,k,m) = merge(simh(i,j,k,m),savg,abs(vmac(i,j,k)) .gt. rel_eps)
-             enddo
-          enddo
-
-       endif
-
-    end do
-
-  end subroutine make_edge_scal_predictor_2d
-
   subroutine make_edge_scal_2d(lo, hi, idir, domlo, domhi, &
        s,      s_lo, s_hi, nc_s, &
        sedge, x_lo, x_hi, nc_x, &
@@ -684,9 +478,9 @@ contains
     end if
 
   end subroutine make_divu
-
-
-  subroutine make_edge_scal_predictor_3d(lo, hi, idir, domlo, domhi, &
+#endif
+#if (AMREX_SPACEDIM >=2)
+  subroutine make_edge_scal_predictor(lo, hi, idir, domlo, domhi, &
        s,      s_lo, s_hi, nc_s, &
        umac,   u_lo, u_hi, &
        vmac,   v_lo, v_hi, &
@@ -698,7 +492,7 @@ contains
        sr, sr_lo, sr_hi, nc_sr, &
        simh, si_lo, si_hi, nc_si, &
        dx, dt, is_vel, adv_bc, nbccomp, &
-       ncomp, start_comp, start_bccomp) bind(C,name="make_edge_scal_predictor_3d")
+       ncomp, start_comp, start_bccomp) bind(C,name="make_edge_scal_predictor")
 
     integer         , intent(in   ) :: domlo(3), domhi(3), lo(3), hi(3)
     integer         , intent(in   ) :: s_lo(3), s_hi(3)
@@ -989,9 +783,9 @@ contains
 
     enddo
 
-  end subroutine make_edge_scal_predictor_3d
-
-
+  end subroutine make_edge_scal_predictor
+#endif
+#if (AMREX_SPACEDIM == 3)
   subroutine make_edge_scal_transverse_3d(lo, hi, norm_dir, trans_dir, domlo, domhi, &
        s,      s_lo, s_hi, nc_s, &
        umac,   u_lo, u_hi, &

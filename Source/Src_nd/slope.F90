@@ -147,8 +147,8 @@ contains
   end subroutine slopex_1d
 
 #if (AMREX_SPACEDIM >= 2)
-  subroutine slopex_2d(lo,hi,s,s_lo,s_hi,nc_s,slx,sl_lo,sl_hi,nc_sl, &
-       domlo,domhi,nvar,startcomp,adv_bc,nbccomp,start_bccomp) bind(C,name="slopex_2d")
+  subroutine slopex(lo,hi,s,s_lo,s_hi,nc_s,slx,sl_lo,sl_hi,nc_sl, &
+       domlo,domhi,nvar,startcomp,adv_bc,nbccomp,start_bccomp) bind(C,name="slopex")
 
     use amrex_constants_module
     use meth_params_module, only : slope_order
@@ -336,10 +336,10 @@ contains
 
     endif
 
-  end subroutine slopex_2d
+  end subroutine slopex
 
-  subroutine slopey_2d(lo,hi,s,s_lo,s_hi,nc_s,sly,sl_lo,sl_hi,nc_sl, &
-       domlo,domhi,nvar,startcomp,adv_bc,nbccomp,start_bccomp)  bind(C,name="slopey_2d")
+  subroutine slopey(lo,hi,s,s_lo,s_hi,nc_s,sly,sl_lo,sl_hi,nc_sl, &
+       domlo,domhi,nvar,startcomp,adv_bc,nbccomp,start_bccomp)  bind(C,name="slopey")
 
     use amrex_constants_module
     use meth_params_module, only : slope_order
@@ -528,12 +528,12 @@ contains
 
     endif
 
-  end subroutine slopey_2d
+  end subroutine slopey
 
 #if (AMREX_SPACEDIM == 3)
-  subroutine slopez_3d(lo,hi,s,s_lo,s_hi,nc_s,slz,sl_lo,sl_hi,nc_sl, &
+  subroutine slopez(lo,hi,s,s_lo,s_hi,nc_s,slz,sl_lo,sl_hi,nc_sl, &
        domlo,domhi,nvar,startcomp,adv_bc,nbccomp,start_bccomp) &
-       bind(C, name="slopez_3d")
+       bind(C, name="slopez")
 
     use amrex_constants_module
     use meth_params_module, only : slope_order
@@ -724,7 +724,7 @@ contains
 
     endif
 
-  end subroutine slopez_3d
+  end subroutine slopez
 
 #endif
 #endif
