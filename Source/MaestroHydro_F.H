@@ -13,20 +13,7 @@ extern "C"
 
     //////////////////////
     // in make_edge_scal.F90
-#if (AMREX_SPACEDIM == 1)
-    void make_edge_scal_1d(
-                      const int* domlo, const int* domhi,
-                      const int* lo, const int* hi,
-                      const amrex::Real* s,      const int* s_lo, const int* s_hi, const int nc_s, int ng_s,
-                            amrex::Real* sedgex, const int* x_lo, const int* x_hi, const int nc_x,
-                      const amrex::Real* umac,   const int* u_lo, const int* u_hi,
-                      const int ng_um,
-                      const amrex::Real* force,  const int* f_lo, const int* f_hi, const int nc_f,
-                      const amrex::Real* dx, const amrex::Real dt, const int is_vel,
-                      const int* adv_bc, const int nbccomp, const int comp, const int bccomp,
-                      const int is_conservative);
-
-#elif (AMREX_SPACEDIM == 2)
+#if (AMREX_SPACEDIM == 2)
     void make_edge_scal_2d(const int* lo, const int* hi, const int idir,
                       const int* domlo, const int* domhi,
                     const amrex::Real* s,      const int* s_lo, const int* s_hi, const int nc_s,
@@ -174,7 +161,6 @@ extern "C"
 
     //////////////////////
     // in slope.F90
-#if (AMREX_SPACEDIM >= 2)
     void slopex(const int* lo, const int* hi,
                    const amrex::Real* state, const int* s_lo, const int* s_hi, const int nc_s,
                    const amrex::Real* slopex, const int* sl_lo, const int* sl_hi,
@@ -198,7 +184,6 @@ extern "C"
                   const int* domlo, const int* domhi,
                   const int nvar, const int startcomp,
                   const int* adv_bc, const int nbccomp, const int start_bccomp);
-#endif
 #endif
     //////////////////////
 

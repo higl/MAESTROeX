@@ -1252,8 +1252,8 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                        Vector<std::array< MultiFab, AMREX_SPACEDIM > >& sedge,
                        const Vector<std::array< MultiFab, AMREX_SPACEDIM > >& umac,
                        const Vector<MultiFab>& force,
-                       int is_vel, const Vector<BCRec>& bcs, int nbccomp,
-                       int start_scomp, int start_bccomp, int num_comp, int is_conservative)
+                       const int is_vel, const Vector<BCRec>& bcs, const int nbccomp,
+                       const int start_scomp, const int start_bccomp, const int num_comp, const int is_conservative)
 {
     // timer for profiling
     BL_PROFILE_VAR("Maestro::MakeEdgeScal()", MakeEdgeScal);
@@ -1305,8 +1305,8 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
         MultiFab& sedgez_mf = sedge[lev][2];
         const MultiFab& wmac_mf   = umac[lev][2];
 
-        MultiFab slopez, divu;
-        slopez.define(grids[lev],dmap[lev],num_comp,1);
+        MultiFab zslope, divu;
+        zslope.define(grids[lev],dmap[lev],num_comp,1);
         divu.define(grids[lev],dmap[lev],1,1);
 
         MultiFab slz, srz, simhz;
@@ -1343,36 +1343,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
         const MultiFab& force_mf = force[lev];
 
         // loop over boxes (make sure mfi takes a cell-centered multifab as an argument)
-#if (AMREX_SPACEDIM == 1)
-        // NOTE: don't tile, but threaded in fortran subroutine
-        for ( MFIter mfi(scal_mf); mfi.isValid(); ++mfi ) {
-
-            // Get the index space of the valid region
-            const Box& tileBox = mfi.tilebox();
-
-            // Be careful to pass in comp+1 for fortran indexing
-            for (int scomp = start_scomp+1; scomp <= start_scomp + num_comp; ++scomp) {
-
-                int bccomp = start_bccomp + scomp - start_scomp;
-
-                // call fortran subroutine
-                // use macros in AMReX_ArrayLim.H to pass in each FAB's data,
-                // lo/hi coordinates (including ghost cells), and/or the # of components
-                // We will also pass "validBox", which specifies the "valid" region.
-                make_edge_scal_1d(
-                    AMREX_ARLIM_3D(domainBox.loVect()), AMREX_ARLIM_3D(domainBox.hiVect()),
-                    AMREX_ARLIM_3D(tileBox.loVect()), AMREX_ARLIM_3D(tileBox.hiVect()),
-                    BL_TO_FORTRAN_3D(scal_mf[mfi]), scal_mf.nComp(), scal_mf.nGrow(),
-                    BL_TO_FORTRAN_3D(sedgex_mf[mfi]), sedgex_mf.nComp(),
-                    BL_TO_FORTRAN_3D(umac_mf[mfi]),
-                    umac_mf.nGrow(),
-                    BL_TO_FORTRAN_3D(force_mf[mfi]), force_mf.nComp(),
-                    dx, dt, is_vel, bcs[0].data(),
-                    nbccomp, scomp, bccomp, is_conservative);
-            } // end loop over components
-        } // end MFIter loop
-
-#elif (AMREX_SPACEDIM == 2)
+#if (AMREX_SPACEDIM == 2)
 
 #ifdef AMREX_USE_CUDA
         int* bc_f = prepare_bc(bcs[0].data(), Nscal);
@@ -1606,7 +1577,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                           AMREX_INT_ANYD(obx.hiVect()),
                           BL_TO_FORTRAN_ANYD(scal_mf[mfi]),
                           scal_mf.nComp(),
-                          BL_TO_FORTRAN_ANYD(slopez[mfi]),slopez.nComp(),
+                          BL_TO_FORTRAN_ANYD(zslope[mfi]),zslope.nComp(),
                           AMREX_INT_ANYD(domainBox.loVect()),
                           AMREX_INT_ANYD(domainBox.hiVect()),
                           num_comp,start_scomp+1,bc_f,nbccomp,start_bccomp);
@@ -1675,7 +1646,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                                         BL_TO_FORTRAN_ANYD(wmac_mf[mfi]),
                                         BL_TO_FORTRAN_ANYD(Ip[mfi]), num_comp,
                                         BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
-                                        BL_TO_FORTRAN_ANYD(slopez[mfi]), slopez.nComp(),
+                                        BL_TO_FORTRAN_ANYD(zslope[mfi]), zslope.nComp(),
                                         BL_TO_FORTRAN_ANYD(slx[mfi]), slx.nComp(),
                                         BL_TO_FORTRAN_ANYD(srx[mfi]), srx.nComp(),
                                         BL_TO_FORTRAN_ANYD(simhx[mfi]), simhx.nComp(),
@@ -1694,7 +1665,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                                         BL_TO_FORTRAN_ANYD(wmac_mf[mfi]),
                                         BL_TO_FORTRAN_ANYD(Ip[mfi]), num_comp,
                                         BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
-                                        BL_TO_FORTRAN_ANYD(slopez[mfi]), slopez.nComp(),
+                                        BL_TO_FORTRAN_ANYD(zslope[mfi]), zslope.nComp(),
                                         BL_TO_FORTRAN_ANYD(sly[mfi]), sly.nComp(),
                                         BL_TO_FORTRAN_ANYD(sry[mfi]), sry.nComp(),
                                         BL_TO_FORTRAN_ANYD(simhy[mfi]), simhy.nComp(),
@@ -1713,7 +1684,7 @@ Maestro::MakeEdgeScal (const Vector<MultiFab>& state,
                                         BL_TO_FORTRAN_ANYD(wmac_mf[mfi]),
                                         BL_TO_FORTRAN_ANYD(Ip[mfi]), num_comp,
                                         BL_TO_FORTRAN_ANYD(Im[mfi]), num_comp,
-                                        BL_TO_FORTRAN_ANYD(slopez[mfi]), slopez.nComp(),
+                                        BL_TO_FORTRAN_ANYD(zslope[mfi]), zslope.nComp(),
                                         BL_TO_FORTRAN_ANYD(slz[mfi]), slz.nComp(),
                                         BL_TO_FORTRAN_ANYD(srz[mfi]), srz.nComp(),
                                         BL_TO_FORTRAN_ANYD(simhz[mfi]), simhz.nComp(),
