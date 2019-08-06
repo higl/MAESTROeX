@@ -130,34 +130,24 @@ extern "C"
                       amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
                       const amrex::Real* w0, const amrex::Real* dx, const amrex::Real* dt,
                       const int* adv_bc, const int* phys_bc);
-
-#elif (AMREX_SPACEDIM == 2)
-  void mkutrans_2d(const int* lo, const int* hi,
+#elif (AMREX_SPACEDIM >= 2)
+  void mkutrans(const int* lo, const int* hi,
                     const int lev, const int idir,
                     const int* domlo, const int* domhi,
                     const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int nc_ut,
                     const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int nc_uf,
                     amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
                     amrex::Real* vtrans, const int* uv_lo, const int* uv_hi,
-                    const amrex::Real* Ip, const int* ip_lo, const int* ip_hi,
-                    const amrex::Real* Im, const int* im_lo, const int* im_hi,
-                    const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
-                    const int* adv_bc, const int* phys_bc);
-
-#elif (AMREX_SPACEDIM == 3)
-  void mkutrans_3d(const int* lo, const int* hi,
-                    const int lev, const int idir,
-                    const int* domlo, const int* domhi,
-                    const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int nc_ut,
-                    const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int nc_uf,
-                    amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
-                    amrex::Real* vtrans, const int* uv_lo, const int* uv_hi,
+#if (AMREX_SPACEDIM == 3)
                     amrex::Real* wtrans, const int* uw_lo, const int* uw_hi,
+#endif
                     const amrex::Real* Ip, const int* ip_lo, const int* ip_hi,
                     const amrex::Real* Im, const int* im_lo, const int* im_hi,
+#if (AMREX_SPACEDIM == 3)
     		        const amrex::Real* w0macx, const int* wx_lo, const int* wx_hi,
     		        const amrex::Real* w0macy, const int* wy_lo, const int* wy_hi,
     		        const amrex::Real* w0macz, const int* wz_lo, const int* wz_hi,
+#endif
                     const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
                     const int* adv_bc, const int* phys_bc);
 #endif
