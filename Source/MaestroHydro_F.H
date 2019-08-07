@@ -30,7 +30,7 @@ extern "C"
                     const int* adv_bc, const int nbccomp, const int ncomp, const int start_comp, const int start_bccomp,
                     const int is_conservative);
 #endif
-#if (AMREX_SPACEDIM >= 2)
+
     void make_edge_scal_predictor(const int* lo, const int* hi,
                       const int idir,
                       const int* domlo, const int* domhi,
@@ -47,9 +47,8 @@ extern "C"
                       const amrex::Real* dx, const amrex::Real dt, const int is_vel,
                       const int* adv_bc, const int nbccomp, const int ncomp,
                       const int start_comp, const int start_bccomp);
-#endif
-#if (AMREX_SPACEDIM == 3)
 
+#if (AMREX_SPACEDIM == 3)
     void make_divu(const int* lo, const int* hi,
                       amrex::Real* divu, const int* d_lo, const int* d_hi,
                       const amrex::Real* umac,   const int* u_lo, const int* u_hi,

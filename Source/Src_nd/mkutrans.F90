@@ -19,7 +19,6 @@ module mkutrans_module
 
 contains
 
-#if (AMREX_SPACEDIM >= 2)
 
   subroutine mkutrans(lo, hi, lev, idir, domlo, domhi, &
        utilde, ut_lo, ut_hi, nc_ut, &
@@ -364,6 +363,5 @@ contains
     endif
 
   end subroutine mkutrans
-#endif
 
 end module mkutrans_module
