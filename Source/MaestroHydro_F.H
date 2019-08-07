@@ -37,10 +37,14 @@ extern "C"
                       const amrex::Real* s,      const int* s_lo, const int* s_hi, const int nc_s,
                       const amrex::Real* umac,   const int* u_lo, const int* u_hi,
                       const amrex::Real* vmac,   const int* v_lo, const int* v_hi,
+#if (AMREX_SPACEDIM == 3)
                       const amrex::Real* wmac,   const int* w_lo, const int* w_hi,
+#endif
                       const amrex::Real* Ip, const int* ip_lo, const int* ip_hi, const int ip_dim,
                       const amrex::Real* Im, const int* im_lo, const int* im_hi, const int im_dim,
+#if (AMREX_SPACEDIM == 3)
                       const amrex::Real* slopez, const int* slo_lo, const int* slo_hi, const int nc_slo,
+#endif
                       amrex::Real* sl, const int* sl_lo, const int* sl_hi, const int nc_sl,
                       amrex::Real* sr, const int* sr_lo, const int* sr_hi, const int nc_sr,
                       amrex::Real* simh, const int* si_lo, const int* si_hi, const int nc_si,
@@ -137,7 +141,9 @@ extern "C"
         const int nc_s,
         const amrex::Real* u,  const int* u_lo, const int* u_hi,
         const amrex::Real* v,  const int* v_lo, const int* v_hi,
+ #if (AMREX_SPACEDIM == 3)
         const amrex::Real* w,  const int* w_lo, const int* w_hi,
+ #endif
         amrex::Real* Ip, const int* ip_lo, const int* ip_hi, const int ip_dim,
         amrex::Real* Im, const int* im_lo, const int* im_hi, const int im_dim,
         const int* domlo, const int* domhi,

@@ -29,10 +29,14 @@ contains
        s,      s_lo, s_hi, nc_s, &
        umac,   u_lo, u_hi, &
        vmac,   v_lo, v_hi, &
+#if (AMREX_SPACEDIM == 3)
        wmac,   w_lo, w_hi, &
+#endif
        Ip, ip_lo, ip_hi, ip_dim, &
        Im, im_lo, im_hi, im_dim, &
+#if (AMREX_SPACEDIM == 3)
        slopez, slo_lo, slo_hi, nc_slo, &
+#endif
        sl, sl_lo, sl_hi, nc_sl, &
        sr, sr_lo, sr_hi, nc_sr, &
        simh, si_lo, si_hi, nc_si, &
@@ -41,23 +45,34 @@ contains
 
     integer         , intent(in   ) :: domlo(3), domhi(3), lo(3), hi(3)
     integer         , intent(in   ) :: s_lo(3), s_hi(3)
-    integer, value,   intent(in   ) :: idir, nc_s, nc_slo, nc_sl, nc_sr, nc_si, ip_dim, im_dim
+    integer, value,   intent(in   ) :: idir, nc_s, nc_sl, nc_sr, nc_si, ip_dim, im_dim
+#if (AMREX_SPACEDIM == 3)
+    integer, value,   intent(in   ) :: nc_slo
+#endif
     integer         , intent(in   ) :: u_lo(3), u_hi(3)
     integer         , intent(in   ) :: v_lo(3), v_hi(3)
+#if (AMREX_SPACEDIM == 3)
     integer         , intent(in   ) :: w_lo(3), w_hi(3)
+#endif
     integer         , intent(in   ) :: ip_lo(3), ip_hi(3)
     integer         , intent(in   ) :: im_lo(3), im_hi(3)
+#if (AMREX_SPACEDIM == 3)
     integer         , intent(in   ) :: slo_lo(3), slo_hi(3)
+#endif
     integer         , intent(in   ) :: sl_lo(3), sl_hi(3)
     integer         , intent(in   ) :: sr_lo(3), sr_hi(3)
     integer         , intent(in   ) :: si_lo(3), si_hi(3)
     double precision, intent(in   ) :: s     (s_lo(1):s_hi(1),s_lo(2):s_hi(2),s_lo(3):s_hi(3),nc_s)
     double precision, intent(in   ) :: umac  (u_lo(1):u_hi(1),u_lo(2):u_hi(2),u_lo(3):u_hi(3))
     double precision, intent(in   ) :: vmac  (v_lo(1):v_hi(1),v_lo(2):v_hi(2),v_lo(3):v_hi(3))
+#if (AMREX_SPACEDIM == 3)
     double precision, intent(in   ) :: wmac  (w_lo(1):w_hi(1),w_lo(2):w_hi(2),w_lo(3):w_hi(3))
+#endif
     double precision, intent(inout) :: Ip(ip_lo(1):ip_hi(1),ip_lo(2):ip_hi(2),ip_lo(3):ip_hi(3),ip_dim,AMREX_SPACEDIM)
     double precision, intent(inout) :: Im(im_lo(1):im_hi(1),im_lo(2):im_hi(2),im_lo(3):im_hi(3),im_dim,AMREX_SPACEDIM)
+#if (AMREX_SPACEDIM == 3)
     double precision, intent(in   ) :: slopez     (slo_lo(1):slo_hi(1),slo_lo(2):slo_hi(2),slo_lo(3):slo_hi(3),nc_slo)
+#endif
     double precision, intent(inout) :: sl     (nc_sl,sl_lo(1):sl_hi(1),sl_lo(2):sl_hi(2),sl_lo(3):sl_hi(3))
     double precision, intent(inout) :: sr     (nc_sr,sr_lo(1):sr_hi(1),sr_lo(2):sr_hi(2),sr_lo(3):sr_hi(3))
     double precision, intent(inout) :: simh     (nc_si,si_lo(1):si_hi(1),si_lo(2):si_hi(2),si_lo(3):si_hi(3))

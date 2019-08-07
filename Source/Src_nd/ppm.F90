@@ -28,19 +28,27 @@ contains
 
   ! characteristics based on u
   subroutine ppm(lo,hi,s,s_lo,s_hi,nc_s, &
-       u,u_lo,u_hi,v,v_lo,v_hi,w,w_lo,w_hi, &
+       u,u_lo,u_hi,v,v_lo,v_hi, &
+#if (AMREX_SPACEDIM == 3)
+       w,w_lo,w_hi, &
+#endif
        Ip,ip_lo,ip_hi,ip_dim,Im,im_lo,im_hi,im_dim, &
        domlo,domhi, &
        adv_bc,dx,dt,is_umac,start_comp,ncomp,start_bccomp,nbccomp) bind(C,name="ppm")
 
     integer         , intent(in   ) :: domlo(3),domhi(3),lo(3),hi(3),s_lo(3),s_hi(3)
-    integer         , intent(in   ) :: u_lo(3),u_hi(3),v_lo(3),v_hi(3),w_lo(3),w_hi(3)
+    integer         , intent(in   ) :: u_lo(3),u_hi(3),v_lo(3),v_hi(3)
+#if (AMREX_SPACEDIM == 3)
+    integer         , intent(in   ) :: w_lo(3),w_hi(3)
+#endif
     integer         , intent(in   ) :: im_lo(3),im_hi(3),ip_lo(3),ip_hi(3)
     integer,   value, intent(in   ) :: nc_s,ip_dim,im_dim
     double precision, intent(in   ) ::  s(s_lo(1):s_hi(1),s_lo(2):s_hi(2),s_lo(3):s_hi(3),nc_s)
     double precision, intent(in   ) ::  u(u_lo(1):u_hi(1),u_lo(2):u_hi(2),u_lo(3):u_hi(3))
     double precision, intent(in   ) ::  v(v_lo(1):v_hi(1),v_lo(2):v_hi(2),v_lo(3):v_hi(3))
+#if (AMREX_SPACEDIM == 3)
     double precision, intent(in   ) ::  w(w_lo(1):w_hi(1),w_lo(2):w_hi(2),w_lo(3):w_hi(3))
+#endif
     double precision, intent(inout) :: Ip(ip_lo(1):ip_hi(1),ip_lo(2):ip_hi(2),ip_lo(3):ip_hi(3),ip_dim,AMREX_SPACEDIM)
     double precision, intent(inout) :: Im(im_lo(1):im_hi(1),im_lo(2):im_hi(2),im_lo(3):im_hi(3),im_dim,AMREX_SPACEDIM)
     integer         , intent(in   ) :: adv_bc(AMREX_SPACEDIM,2,AMREX_SPACEDIM)
