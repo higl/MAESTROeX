@@ -247,7 +247,7 @@ contains
                 enddo
              enddo
           enddo
-
+#if (AMREX_SPACEDIM == 3)
        else ! idir == 3
           ! Normal predictor states.
           ! call bl_allocated from lo:hi+1 in the normal direction
@@ -323,7 +323,7 @@ contains
                 enddo
              enddo
           enddo
-
+#endif
        endif
 
     enddo

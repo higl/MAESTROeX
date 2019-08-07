@@ -109,15 +109,6 @@ extern "C"
 
     //////////////////////
     // in mkutrans.F90
-#if (AMREX_SPACEDIM == 1)
-    void mkutrans_1d(const int* lev, const int* domlo, const int* domhi,
-                      const int* lo, const int* hi,
-                      const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int* nc_ut, int ng_ut,
-                      const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int* nc_uf, int ng_uf,
-                      amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
-                      const amrex::Real* w0, const amrex::Real* dx, const amrex::Real* dt,
-                      const int* adv_bc, const int* phys_bc);
-#elif (AMREX_SPACEDIM >= 2)
   void mkutrans(const int* lo, const int* hi,
                     const int lev, const int idir,
                     const int* domlo, const int* domhi,
@@ -137,7 +128,6 @@ extern "C"
 #endif
                     const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
                     const int* adv_bc, const int* phys_bc);
-#endif
 
     //////////////////////
 
@@ -189,18 +179,7 @@ extern "C"
 
     //////////////////////
     // in velpred.F90
-#if (AMREX_SPACEDIM == 1)
-    void velpred_1d(const int* lo, const int* hi,
-                      const int lev, const int* domlo, const int* domhi,
-                      const amrex::Real* utilde,  const int* ut_lo, const int* ut_hi, const int nc_ut, int ng_ut,
-                      const amrex::Real* ufull,   const int* uf_lo, const int* uf_hi, const int nc_uf, int ng_uf,
-                      const amrex::Real* utrans, const int* uu_lo, const int* uu_hi,
-                      amrex::Real* umac, const int* mu_lo, const int* mu_hi,
-                      const amrex::Real* force, const int* f_lo, const int* f_hi, const int nc_f, int ng_f,
-                      const amrex::Real* w0, const amrex::Real* dx, const amrex::Real dt,
-                      const int* adv_bc, const int* phys_bc);
-
-#elif (AMREX_SPACEDIM == 2)
+#if (AMREX_SPACEDIM == 2)
   void velpred_interface_2d(const int* lo, const int* hi,
                     const int idir,
                     const int* domlo, const int* domhi,
