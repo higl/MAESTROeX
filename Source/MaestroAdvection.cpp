@@ -154,7 +154,7 @@ Maestro::MakeRhoXFlux (const Vector<MultiFab>& state,
 #if (AMREX_SPACEDIM == 2)
                 // x-direction
 #pragma gpu box(xbx)
-                make_rhoX_flux_2d(AMREX_INT_ANYD(xbx.loVect()),
+                make_rhoX_flux(AMREX_INT_ANYD(xbx.loVect()),
                     AMREX_INT_ANYD(xbx.hiVect()), lev, 1,
                     BL_TO_FORTRAN_ANYD(sfluxx_mf[mfi]), sfluxx_mf.nComp(),
                     BL_TO_FORTRAN_ANYD(etarhoflux_mf[mfi]),
@@ -168,7 +168,7 @@ Maestro::MakeRhoXFlux (const Vector<MultiFab>& state,
 
                 // y-direction
 #pragma gpu box(ybx)
-                make_rhoX_flux_2d(AMREX_INT_ANYD(ybx.loVect()),
+                make_rhoX_flux(AMREX_INT_ANYD(ybx.loVect()),
                     AMREX_INT_ANYD(ybx.hiVect()), lev, 2,
                     BL_TO_FORTRAN_ANYD(sfluxy_mf[mfi]), sfluxy_mf.nComp(),
                     BL_TO_FORTRAN_ANYD(etarhoflux_mf[mfi]),
@@ -189,7 +189,7 @@ Maestro::MakeRhoXFlux (const Vector<MultiFab>& state,
     	    if (spherical == 0) {
                 // x-direction
 #pragma gpu box(xbx)
-                make_rhoX_flux_3d(AMREX_INT_ANYD(xbx.loVect()),
+                make_rhoX_flux(AMREX_INT_ANYD(xbx.loVect()),
                                 AMREX_INT_ANYD(xbx.hiVect()),
                                 lev, 1,
                                 BL_TO_FORTRAN_ANYD(sfluxx_mf[mfi]), sfluxx_mf.nComp(),
@@ -203,7 +203,7 @@ Maestro::MakeRhoXFlux (const Vector<MultiFab>& state,
                                 startcomp, endcomp);
                 // y-direction
 #pragma gpu box(ybx)
-                make_rhoX_flux_3d(AMREX_INT_ANYD(ybx.loVect()),
+                make_rhoX_flux(AMREX_INT_ANYD(ybx.loVect()),
                                 AMREX_INT_ANYD(ybx.hiVect()),
                                 lev, 2,
                                 BL_TO_FORTRAN_ANYD(sfluxy_mf[mfi]), sfluxy_mf.nComp(),
@@ -217,7 +217,7 @@ Maestro::MakeRhoXFlux (const Vector<MultiFab>& state,
                                 startcomp, endcomp);
                 // z-direction
 #pragma gpu box(zbx)
-                make_rhoX_flux_3d(AMREX_INT_ANYD(zbx.loVect()),
+                make_rhoX_flux(AMREX_INT_ANYD(zbx.loVect()),
                                 AMREX_INT_ANYD(zbx.hiVect()),
                                 lev, 3,
                                 BL_TO_FORTRAN_ANYD(sfluxz_mf[mfi]), sfluxz_mf.nComp(),
@@ -424,7 +424,7 @@ Maestro::MakeRhoHFlux (const Vector<MultiFab>& state,
 #if (AMREX_SPACEDIM == 2)
             // x-direction
 #pragma gpu box(xbx)
-            make_rhoh_flux_2d(AMREX_INT_ANYD(xbx.loVect()),
+            make_rhoh_flux(AMREX_INT_ANYD(xbx.loVect()),
                               AMREX_INT_ANYD(xbx.hiVect()),
                               lev, 1,
                               BL_TO_FORTRAN_ANYD(sfluxx_mf[mfi]), sfluxx_mf.nComp(),
@@ -438,7 +438,7 @@ Maestro::MakeRhoHFlux (const Vector<MultiFab>& state,
 
             // y-direction
 #pragma gpu box(ybx)
-            make_rhoh_flux_2d(AMREX_INT_ANYD(ybx.loVect()),
+            make_rhoh_flux(AMREX_INT_ANYD(ybx.loVect()),
                               AMREX_INT_ANYD(ybx.hiVect()),
                               lev, 2,
                               BL_TO_FORTRAN_ANYD(sfluxy_mf[mfi]), sfluxy_mf.nComp(),
@@ -455,7 +455,7 @@ Maestro::MakeRhoHFlux (const Vector<MultiFab>& state,
             if (spherical == 0) {
                 // x-direction
 #pragma gpu box(xbx)
-                make_rhoh_flux_3d(AMREX_INT_ANYD(xbx.loVect()),
+                make_rhoh_flux(AMREX_INT_ANYD(xbx.loVect()),
                     AMREX_INT_ANYD(xbx.hiVect()),
                     lev, 1,
                     BL_TO_FORTRAN_ANYD(sfluxx_mf[mfi]), sfluxx_mf.nComp(),
@@ -469,7 +469,7 @@ Maestro::MakeRhoHFlux (const Vector<MultiFab>& state,
 
                 // y-direction
 #pragma gpu box(ybx)
-                make_rhoh_flux_3d(AMREX_INT_ANYD(ybx.loVect()),
+                make_rhoh_flux(AMREX_INT_ANYD(ybx.loVect()),
                     AMREX_INT_ANYD(ybx.hiVect()),
                     lev, 2,
                     BL_TO_FORTRAN_ANYD(sfluxy_mf[mfi]), sfluxy_mf.nComp(),
@@ -483,7 +483,7 @@ Maestro::MakeRhoHFlux (const Vector<MultiFab>& state,
 
                 // z-direction
 #pragma gpu box(zbx)
-                make_rhoh_flux_3d(AMREX_INT_ANYD(zbx.loVect()),
+                make_rhoh_flux(AMREX_INT_ANYD(zbx.loVect()),
                     AMREX_INT_ANYD(zbx.hiVect()),
                     lev, 3,
                     BL_TO_FORTRAN_ANYD(sfluxz_mf[mfi]), sfluxz_mf.nComp(),

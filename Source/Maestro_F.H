@@ -475,8 +475,7 @@ extern "C"
 
     //////////////////////
     // in make_flux.F90
-#if (AMREX_SPACEDIM == 2)
-   void make_rhoX_flux_2d(const int* lo, const int* hi,
+   void make_rhoX_flux(const int* lo, const int* hi,
                const int lev, const int idir,
 			   amrex::Real* sflux, const int* fx_lo, const int* fx_hi, const int nc_fx,
 			   amrex::Real* etarhoflux, const int* eta_lo, const int* eta_hi,
@@ -486,18 +485,7 @@ extern "C"
 			   const amrex::Real* rho0_new, const amrex::Real* rho0_edge_new,
 			   const amrex::Real* rho0_predicted_edge, const amrex::Real* w0,
 			   const int startcomp, const int endcomp);
-
-#elif (AMREX_SPACEDIM == 3)
-   void make_rhoX_flux_3d(const int* lo, const int* hi, const int lev, const int idir,
-			   amrex::Real* sflux, const int* f_lo, const int* f_hi, const int nc_f,
-			   amrex::Real* etarhoflux, const int* eta_lo, const int* eta_hi,
-			   amrex::Real* sedge, const int* x_lo, const int* x_hi, const int nc_x,
-			   const amrex::Real* umac,   const int* u_lo, const int* u_hi,
-			   const amrex::Real* rho0_old, const amrex::Real* rho0_edge_old,
-			   const amrex::Real* rho0_new, const amrex::Real* rho0_edge_new,
-			   const amrex::Real* rho0_predicted_edge, const amrex::Real* w0,
-			   const int startcomp, const int endcomp);
-
+#if (AMREX_SPACEDIM == 3)
     void make_rhoX_flux_3d_sphr(const int* lo, const int* hi,
 				amrex::Real* sflux, const int* f_lo, const int* f_hi, const int nc_f,
 				amrex::Real* sedge, const int* x_lo, const int* x_hi, const int nc_x,
@@ -507,8 +495,8 @@ extern "C"
 				const int startcomp, const int endcomp);
 #endif
 
-#if (AMREX_SPACEDIM == 2)
-    void make_rhoh_flux_2d(const int* lo, const int* hi,
+
+    void make_rhoh_flux(const int* lo, const int* hi,
                const int lev, const int idir,
 			   amrex::Real* sflux, const int* f_lo, const int* f_hi, const int nc_f,
 			   const amrex::Real* sedge, const int* x_lo, const int* x_hi, const int nc_x,
@@ -518,19 +506,8 @@ extern "C"
 			   const amrex::Real* rhoh0_old, const amrex::Real* rhoh0_edge_old,
 			   const amrex::Real* rhoh0_new, const amrex::Real* rhoh0_edge_new,
 			   const amrex::Real* w0);
-
-#elif (AMREX_SPACEDIM == 3)
-    void make_rhoh_flux_3d(const int* lo, const int* hi,
-               const int lev, const int idir,
-			   amrex::Real* sflux, const int* f_lo, const int* f_hi, const int nc_fx,
-			   const amrex::Real* sedge, const int* x_lo, const int* x_hi, const int nc_x,
-			   const amrex::Real* umac,   const int* u_lo, const int* u_hi,
-			   const amrex::Real* rho0_old, const amrex::Real* rho0_edge_old,
-			   const amrex::Real* rho0_new, const amrex::Real* rho0_edge_new,
-			   const amrex::Real* rhoh0_old, const amrex::Real* rhoh0_edge_old,
-			   const amrex::Real* rhoh0_new, const amrex::Real* rhoh0_edge_new,
-			   const amrex::Real* w0);
-
+               
+#if (AMREX_SPACEDIM == 3)
    void make_rhoh_flux_3d_sphr(const int* lo, const int* hi,
 				amrex::Real* sflux, const int* fx_lo, const int* fx_hi, const int nc_fx,
 				const amrex::Real* sedge, const int* x_lo, const int* x_hi, const int nc_x,
